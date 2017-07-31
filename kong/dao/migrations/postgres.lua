@@ -371,4 +371,27 @@ return {
     end,
     down = function(_, _, dao) end
   },
+  {
+    name = "2017-07-31-113200_jwt_preflight_default",
+    up = function(_, _, dao)
+      local rows, err = dao.db:query([[
+        SELECT * FROM plugins WHERE name = 'jwt';
+      ]])
+      if err then
+        return err
+      end
+
+      for _, row in ipairs(rows) do
+        if row.config.authenticate_preflight == nil then
+          local _, err = dao.apis:update({
+            authenticate_preflight = true,
+          }, { id = row.id })
+          if err then
+            return err
+          end
+        end
+      end
+    end,
+    down = function(_, _, dao) end  -- not implemented
+  },
 }
